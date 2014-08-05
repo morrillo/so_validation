@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+                <record model="workflow.activity" id="act_saleorder_confirmed">
+                      <field name="wkf_id" ref="sale.wkf_sale"/>
+                      <field name="name">act_saleorder_confirmed</field>
+                      <field name="split_mode">XOR</field>
+                      <field name="join_mode">XOR</field>
+                      <field name="kind">dummy</field>
+                      <!-- field name="kind">function</field>
+                      <field name="action">write({'state':'confirmed'})</field -->
+                </record>
+
+                <record model="workflow.transition" id="trans_draft_router">
+                    <field name="act_from" ref="sale.act_draft"/>
+                    <field name="act_to" ref="act_saleorder_confirmed"/>
+                    <field name="signal">order_confirm</field>
+                </record>
+
+                <record model="workflow.transition" id="trans_sent_router">
+                    <field name="act_from" ref="sale.act_sent"/>
+                    <field name="act_to" ref="act_saleorder_confirmed"/>
+                    <field name="signal">order_confirm</field>
+                </record>
+
+                <record model="workflow.transition" id="t110">
+                    <field name="act_from" ref="act_saleorder_confirmed"/>
+                    <field name="act_to" ref="sale.act_router"/>
+                    <field name="signal">order_confirm</field>
+                </record>
+
+
+        <record id="act_double_wait" model="workflow.activity">
+            <field name="wkf_id" ref="sale.wkf_sale"/>
+            <field name="name">WaitForApproval</field>
+            <field name="kind">dummy</field>
+        </record>
+
+        <record id="act_double_check" model="workflow.activity">
+            <field name="wkf_id" ref="sale.wkf_sale"/>
+            <field name="name">CheckForApproval</field>
+            <field name="split_mode">OR</field>
+            <field name="kind">dummy</field>
+        </record>
+
+         <record id="trans_draft_double_check" model="workflow.transition">
+            <field name="act_from" ref="act_saleorder_confirmed"/>
+            <field name="act_to" ref="act_double_check"/>
+        </record>
+
+        <record id="trans_confirmed_double_gt" model="workflow.transition">
+            <field name="act_from" ref="act_double_check"/>
+            <field name="act_to" ref="act_double_wait"/>
+            <field name="condition">add_disc &gt; 0</field>
+            <field name="signal">action_button_confirm</field>
+            <field name="group_id" ref="base.group_sale_manager"/>
+        </record>
+
+        <record id="trans_confirmed_double_lt" model="workflow.transition">
+            <field name="act_from" ref="act_double_check"/>
+            <field name="act_to" ref="sale.act_router"/>
+            <field name="condition">add_disc &lt;= 0</field>
+        </record>
+
+        <record id="trans_double_app_conf" model="workflow.transition">
+            <field name="act_from" ref="act_double_wait"/>
+            <field name="act_to" ref="sale.act_router"/>
+        </record>
+
+    </data>
+</openerp>

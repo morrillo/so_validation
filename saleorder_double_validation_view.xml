@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+
+     <record model="ir.ui.view" id="sale_order_double_search_inherit">
+        <field name="name">sale.order.double.search.inherit</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='draft']" position="after">
+                <filter icon="terp-gtk-jump-to-ltr" name="to_approve" string="To Approve" domain="[('state','in',('wait','confirmed'))]" help="Sale orders which are not approved yet."/>
+            </xpath>
+        </field>
+    </record>
+
+     <record model="ir.ui.view" id="sale_order_approve_button">
+        <field name="name">sale.order.approve.button</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+		<data>
+                        <button name="action_button_confirm" position="replace">
+                                <button name="saleorder_validate" states="sent,progress,manual" string="Approve" class="oe_highlight" 
+                                        groups="sale.manager" />
+                        	<button name="action_button_confirm" states="draft" string="Confirm Sale" type="object" groups="base.group_user"/>
+                        	<button name="action_button_confirm" states="sent" string="Confirm Sale" 
+					class="oe_highlight" type="object" groups="base.group_user"/>
+                        </button>
+
+		</data>
+        </field>
+    </record>
+
+    </data>
+</openerp>
